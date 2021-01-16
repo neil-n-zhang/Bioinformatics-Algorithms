@@ -1,0 +1,260 @@
+---
+title: "Bioinfor Rosalind"
+author: "Neil Zhang"
+date: "January 14, 2021"
+output: html_document
+---
+
+
+###Reverse complement string
+```{r}
+x='ATTGGC'
+x_list=strsplit(x,'')[[1]]
+x_list=rev(x_list)
+
+A_index=x_list=='A'
+T_index=x_list=='T'
+C_index=x_list=='C'
+G_index=x_list=='G'
+
+x_list[A_index]='T'
+x_list[T_index]='A'
+x_list[C_index]='G'
+x_list[G_index]='C'
+paste(x_list,sep = '',collapse = '') #need to add collapse
+```
+
+```{r}
+paste("a",1:5,sep = "")
+
+paste("a",1:5,sep = "",collapse = "+")
+```
+
+###Computing GC Content
+
+```{r}
+seqraw=read.delim('rosalind_gc.txt',header=FALSE)
+name_inx=grep('>',seqraw[,1])
+seq_sum=data.frame(sequence = rep('',length(name_inx)),
+                   row.names = seqraw[name_inx,1])
+seq_gc=data.frame(gc=rep(0,length(name_inx)),
+                   row.names = seqraw[name_inx,1])
+for(i in 1:dim(seq_sum)[1])
+{
+  if(i<length(name_inx)){
+    dna=paste(seqraw[(name_inx[i]+1):(name_inx[i+1]-1),1],collapse = '')
+    }else{
+    dna=paste(seqraw[(name_inx[i]+1):dim(seqraw)[1],1],collapse = '')
+                     }
+  
+  seq_sum[i,1]=dna
+  dna=strsplit(toupper(dna),split = '')[[1]]
+  seq_gc[i,1]=(sum(dna=='C')+sum(dna=='G'))/length(dna)
+  
+}
+max_ind=which.max(seq_gc$gc)
+rownames(seq_gc)[max_ind]
+seq_gc$gc[max_ind]
+
+```
+
+###Counting Point Mutations
+```{r}
+seq1='CCTTACTCGGTAGGAATCCCTACCAACTAGATATCCGACGCACACGAGCTGGTTTGGGCCTTACCCTGTCATCTACTGGGACAGTCCTATAAATGGCGGTGATTAGAAGCAGGATGCACAGAATATAAAGGCAGATGGACCAGGCTCCAGTATCGCCCGTGGGCCCCGGAAAAGTCCACACGAGCCAACAAGATAACCGTTTGGTCCAGGTGAATCATCCAGGGCATAACGTGTTTCCGGTGCGGGATTCCACTTGCTTGAACAGTCTTGCTCTATATGGATGTATACCAGCGTATTCCTACCACGCTACATAGTCCCCCAAACAGACAATCTTATCGAGGATTAACCGTTTCTGTAATTCTCACACTTGAAACCGTACCGAAGGGCTGCAGTCTGCGCGACTCTCGACGATTACCTCCGGATGGGGGTTTCATCACGTCGCGTCATAACAGATTTACCGAACTACCTAACCTTTTCTTCGCCGTATCCTAAGAGTGTGACTGTATCGAGACTTCCAACATTGCCCCAACTCATATTGAGACCCTCCGTTACGGCCGTTCGTAACGACCGTGTCTAGTAGGCATCTGCATGCGTAACTAACAAAAAGCATCAAGAACACGCACTTTCGCCCCCGATTGCATCGCATCGTGCCGCCGCATGGACAAACAGTGGGTTCCGGTGTGTCTGTTGCGATAAAAGAATGTTTAACCAGACGAGGCGCGAATCAATTGACCCGATTCCCCCGAAACAAGGCATTTGGAGTGTCTGCATGATTGCGTCAACCGGTGACCCATTGGCCCCCCCGTGAGCGGGCGTGTACGGACGAAGACGGTAATATCACAATAGATAGCCCGGCGCCCCGCTTTGCGTAATTCTGCCATACGTTGACCATGGGACATATCGCATGCTAATACTAATGTTATTCTGG'
+seq2='ACCTATTCGGTGAGTATTGAAACCAACCCGAGGGCCTCCGAGCCCGAAGGGAATACTTCAATAGTACGTAACTTTCAGACAAAGGTTCATAAAAGTCGATTATCCTAACACGGTTGCCTTAGATTTAGGAGCTGTTGACCCGGTCTTTCTTAAGCACTGTAGGCCTATGATATGACGAGATCCCACAATGAAACACCTTTTTTTTCCGCTACAGTAAGCTGAAGCATATCGTATTTAATGGAGGTCAATCTAATTAGTTAAATGCGATCGCACTAATCGGCAGGATTGCAGCCAGTTACTTCGACGAGTCTTAGTTGTACAAAGATTCCGTATCGAAGATCTGGACCCGTTACCATAGTTCTCTCCTTTGCCTACGATCGGAAGGGCTCCTGGACATACGTCTCGGGTAAGTAACTTTAGTCGCAGTGTTGCACCAGCCGTCTAGCTCTGAAATAAGGGGAACTGCTGTAGCTATGCGTCTACATATCGCTTTTGTTTACATGGATTGATACGTTTTGGGCCTGGAACCCCGATACTCCTGTGCACCTAAAAACCACTTTGTATCAACGTTTACTAGGTGCTAATCCCGTCCGTAGCCTACTATACGCATAACGAAATGCGACTGTCTCACTAGACAGCTATGCTTCGTGACGCAGCCGATCAATGCCCCGCGCGCCACCATATTTCAGACCGTTGCACGATAGGTAAGTTGTTTAATCGATACTTAATGCAGCAGATCTTTCCCCAATTCGTCATGTAACGCGGCGTGATTAAATGTTAACCCCCTTGCCGTAAAGCTGATTACTGCGCTGGTGGGCACTTTCATAGACGTTGACAACGTCACATATGGGGAGCCGCTTAGTTTTTTCCCATGTTCACGAATCGCTTGGATGCTGAACAATGAACGCGTTTATTAGGGATGATCAGC'
+seq1=strsplit(seq1,split = '')[[1]]
+seq2=strsplit(seq2,split = '')[[1]]
+sum(seq1!=seq2)
+```
+
+###Finding a Motif in DNA
+```{r}
+seq='ATCGCTTTACACATGAATCGCTTATCGCTTAATCGCTTATCGCTTTATCGCTTGCATCGCTTGTCATCGCTTATCGCTTAAATCGCTTTCCGCTCAAAATCGCTTACCTTATATCGCTTCTTATCGCTTGGTAAGACCCTATCGCTTATCGCTTATCGCTTGCGACCGGATCGCTTAGCATCGCTTCGGCAAATGCGAGGAACGATCGCTTAAAATCGCTTATCGCTTCATCGCTTGTGGACATCGCTTGATCGCTTCACTATCGCTTATCGCTTTGGACATCGCTTGCCCCATCGCTTAGATCGCTTATCGCTTGGATGTCAGGCTGATCGCTTATCGCTTCCTATCGCTTTACTCTGATCGCTTTATCGCTTCCATCGCTTTTTCATCGCTTGATCGCTTAGATCGCTTGCTATCGCTTATCGCTTTATCGCTTGATCGCTTAATCGCTTTATCGCTTGAACCAGGTCATTGATCGCTTTAACCAAAGTATAATCGCTTATCGCTTCCCTGCATCGCTTAGATCGCTTACCCTTCCCATCGCTTCATCGCTTATCGCTTCACTAATCGCTTGCCGTAAATCGCTTATCGCTTAATCGCTTGTATATGCTTATCGCTTTGACATCGCTTTATCGCTTCGTATCGCTTAATCGCTTTCATAATCGCTTGATCGCTTCATCGCTTATCGCTTATCGCTTTATCGCTTATCGCTTATCGCTTATCGCTTTCACCTATCGCTTGATCGCTTATCGCTTGATCGCTTGCCTATCGCTTCATCGCTTATCGCTTATCGCTTCCATCGCTTATCGCTT'
+motif='ATCGCTTAT'
+motif_ind=c()
+for (i in 1:nchar(seq)){
+  subseq=substr(seq,i,i+nchar(motif)-1)
+  if (subseq==motif){
+    motif_ind=c(motif_ind,i)
+  }
+}
+
+motif_ind
+```
+
+###Overlap graph
+```{r}
+k=3
+seqraw=read.delim('rosalind_grph.txt',header=FALSE)
+name_inx=grep('>',seqraw[,1])
+seq_name=gsub('>','',seqraw[name_inx,1])
+seq_sum=data.frame(sequence = rep('',length(name_inx)),
+                   row.names = seq_name)
+
+for(i in 1:dim(seq_sum)[1])
+{
+  if(i<length(name_inx)){
+    dna=paste(seqraw[(name_inx[i]+1):(name_inx[i+1]-1),1],collapse = '')
+    }else{
+    dna=paste(seqraw[(name_inx[i]+1):dim(seqraw)[1],1],collapse = '')
+                     }
+  
+  seq_sum[i,1]=dna
+}
+tail_str=function(st,k){
+  return(substr(st,nchar(st)-k+1,nchar(st)))
+}
+seq_sum$pre=lapply(seq_sum$sequence,substr,start=1,stop=k)
+seq_sum$suf=lapply(seq_sum$sequence,tail_str,k=k)
+
+overlap_sum=c()
+for(i in 1:(dim(seq_sum)[1]-1))
+{
+  overlap1=grep(seq_sum$pre[i],seq_sum$suf[i+1:dim(seq_sum)[1]])
+  for(j in overlap1){
+    overlap_sum=rbind(overlap_sum,c(seq_name[i+j],seq_name[i]))
+  }
+  
+  overlap2=grep(seq_sum$suf[i],seq_sum$pre[i+1:dim(seq_sum)[1]])
+  for(j in overlap2){
+    overlap_sum=rbind(overlap_sum,c(seq_name[i],seq_name[i+j]))
+  }
+}
+write.csv(overlap_sum,'overlap_sum.csv')
+seq_sum <- apply(seq_sum,2,as.character)
+row.names(seq_sum)=seq_name
+write.csv(seq_sum,'seq_sum.csv')
+```
+
+###Locating Restriction Sites
+```{r}
+revcom_dna=function(dna){
+  x_list=strsplit(dna,'')[[1]]
+  x_list=rev(x_list)
+
+  A_index=x_list=='A'
+  T_index=x_list=='T'
+  C_index=x_list=='C'
+  G_index=x_list=='G'
+
+  x_list[A_index]='T'
+  x_list[T_index]='A'
+  x_list[C_index]='G'
+  x_list[G_index]='C'
+  paste(x_list,sep = '',collapse = '') #need to add collapse
+}
+
+kmers=function(dna,k){
+  kmer_sum=data.frame(kmer=character())
+  for (i in 1:(nchar(dna)-k+1)){
+    kmer_sum=rbind(kmer_sum,data.frame(kmer=substr(dna,i,i+k-1)))
+  }
+  return(kmer_sum)
+}
+
+seqraw=read.delim('rosalind_revp.txt',header=FALSE)
+name_inx=grep('>',seqraw[,1])
+seq_name=gsub('>','',seqraw[name_inx,1])
+seq_sum=data.frame(sequence = rep('',length(name_inx)),
+                   row.names = seq_name)
+
+for(i in 1:dim(seq_sum)[1])
+{
+  if(i<length(name_inx)){
+    dna=paste(seqraw[(name_inx[i]+1):(name_inx[i+1]-1),1],collapse = '')
+    }else{
+    dna=paste(seqraw[(name_inx[i]+1):dim(seqraw)[1],1],collapse = '')
+                     }
+  
+  seq_sum[i,1]=dna
+}
+dna=seq_sum$sequence
+loc_sum=c()
+for (k in 4:12){
+  dna_kmers=kmers(dna,k)
+  dna_kmers$rc=lapply(dna_kmers$kmer,revcom_dna)
+  loc=which(dna_kmers$rc==dna_kmers$kmer,TRUE)
+  loc_su=data.frame(start=loc,len=rep(k,length(loc)))
+  loc_sum=rbind(loc_sum,loc_su)
+}
+write.csv(loc_sum,'loc_sum.csv')
+
+
+```
+
+###Finding a Shared Motif
+```{r}
+seqraw=read.delim('rosalind_lcsm.txt',header=FALSE)
+name_inx=grep('>',seqraw[,1])
+seq_name=gsub('>','',seqraw[name_inx,1])
+seq_sum=data.frame(sequence = rep('',length(name_inx)),
+                   row.names = seq_name)
+
+for(i in 1:dim(seq_sum)[1])
+{
+  if(i<length(name_inx)){
+    dna=paste(seqraw[(name_inx[i]+1):(name_inx[i+1]-1),1],collapse = '')
+    }else{
+    dna=paste(seqraw[(name_inx[i]+1):dim(seqraw)[1],1],collapse = '')
+                     }
+  seq_sum[i,1]=dna
+}
+
+kmers=function(dna,k){
+  kmer_sum=data.frame(kmer=character())
+  for (i in 1:(nchar(dna)-k+1)){
+    kmer_sum=rbind(kmer_sum,data.frame(kmer=substr(dna,i,i+k-1)))
+  }
+  return(kmer_sum)
+}
+
+for (i in rev(2:min(sapply(seq_sum$sequence, nchar)))){
+  for (j in 1:(dim(seq_sum)[1]-1)){
+    if (j==1){
+      kmers1=kmers(seq_sum$sequence[j],i)$kmer
+    }
+    kmers2=kmers(seq_sum$sequence[j+1],i)$kmer
+    kmers_sh=intersect(kmers1,kmers2)
+    if (length(kmers_sh)==0){
+      break
+    }
+    kmers1=kmers_sh
+  }
+  if (length(kmers_sh)!=0){
+    print(kmers_sh)
+    break
+  }
+}
+```
+
+###permutation (Enumerating Gene Orders)
+```{r}
+permu=function(num){
+  if (length(num)==2){
+    per_num_1=cbind(num[1],num[2])
+    per_num_2=cbind(num[2],num[1])
+    return(rbind(per_num_1,per_num_2))
+  }
+  else{
+    per_num_s=c()
+    for (i in 1:length(num)){
+      per_num=cbind(num[i],permu(num[-i]))
+      per_num_s=rbind(per_num_s,per_num)
+    }
+    return(per_num_s)
+  }
+  
+}
+a=permu(1:7)
+write.csv(a,'a.csv')
+```
+
+###Mendel's First Law
+```{r}
+k=16
+m=29
+n=18
+case_n=choose(sum(k,m,n),2)
+1-sum(choose(m,2)/(case_n*4)+(m*n)/(case_n*2)+choose(n,2)/case_n)
+```
+

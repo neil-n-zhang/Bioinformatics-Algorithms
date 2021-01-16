@@ -1,0 +1,120 @@
+---
+title: "R basics"
+author: "Neil Zhang"
+date: "January 15, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+R has five main types of objects to store data: vector, factor, multi-dimensional array, data.frame and list. 
+Data type: character, numeric, logical.
+
+##Vector:
+
+```{r}
+c(1:5)
+```
+
+```{r}
+seq(1,8,2)
+seq(0, 1, length.out=3)
+rep(0, 5)
+```
+
+```{r}
+a=c(1,3,2,5,6)
+rev(a)
+
+rank(a)
+sort(a)
+
+sort(a,decreasing = TRUE)
+```
+```{r}
+a[rank(a)]
+```
+
+```{r}
+range(a)
+```
+
+```{r}
+a[1:4]
+a[c(1,3,5)]
+a[c(-1,-5)] #Remove the first and fifth number
+```
+
+##Matrix
+
+```{r}
+vector=c(1,2,3,4,5,6)
+matrix(vector,2,3)
+matrix(vector,2,3,byrow = FALSE)
+```
+
+```{r}
+m1 = matrix(vector, 2, 3, byrow=TRUE)
+colnames(m1)=c('a','b','c')
+rownames(m1)=c('x','y')
+m1
+```
+
+```{r}
+apply(m1,1,sum)
+apply(m1,2,sum)
+```
+
+
+```{r}
+rownames(m1)
+```
+
+```{r}
+m1=matrix(c(1,2),1,2)
+m2=matrix(c(1,2),2,1)
+m1
+m2
+m1 %*% m2 #Matrix multification
+```
+
+##Character
+
+```{r}
+chr = 'this is a string'
+chr1 = "this is a string"
+class(chr)
+class(chr1)
+```
+
+```{r}
+toupper(chr)
+tolower(chr)
+```
+
+```{r}
+nchar(chr)
+```
+
+```{r}
+substr('123456789',1,5)
+substring('123456789',5)
+```
+
+```{r}
+as.numeric("12")
+strsplit('2019-10-1','-')
+sub('-','/',"2019-10-1") #sub only substitutes the first match
+gsub('-','/',"2019-10-1") #gsub substitutes all matches
+```
+
+```{r}
+grep('a',c('abc','bb','c','a'))
+```
+
+```{r}
+paste('a','b','c',sep = ' to ')
+```
+
